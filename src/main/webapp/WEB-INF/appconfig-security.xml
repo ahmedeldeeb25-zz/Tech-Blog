@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+
+     <http pattern="/resources/**" security="none"/>
+     
+    <http use-expressions="true" auto-config="true">
+        <intercept-url pattern="/" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/welcome" access="hasRole('ROLE_USER')"/>
+        <form-login login-processing-url="/j_spring_security_check"
+                    login-page="/signin" default-target-url="/" 
+                    authentication-failure-url="/signin?error"
+                    username-parameter="email" password-parameter="password"/>
+        <!-- <logout  logout-success-url="/signin" delete-cookies="JSESSIONID" invalidate-session="true" /> -->
+         <logout   logout-success-url="/signin" />
+         <csrf  />
+    </http>
+
+    <!-- for preAuthorize annotation -->
+<!--    <global-method-security pre-post-annotations="enabled" />
+ <http  pattern="/signin" security="none"/> 
+    -->
+	
+<!--   
+   
+     
+    <http use-expressions="true" auto-config="true">
+        <csrf />
+                <intercept-url pattern="/"  access="hasRole('USER')"  />
+        <intercept-url pattern="/signin" access="isAnonymous()" />
+                <intercept-url pattern="/**" access="hasRole('USER')" />
+        <form-login   login-processing-url="/j_spring_security_check"  login-page="/signin" 
+                      username-parameter="email" password-parameter="password"
+                      authentication-failure-url="/signin?error=true" default-target-url="/"
+                      always-use-default-target="true" />
+            
+       
+    </http>-->
+    
+ 
+    
+    <authentication-manager>
+        <authentication-provider>
+            <jdbc-user-service data-source-ref="dataSource"
+            
+                               authorities-by-username-query="select User.email , role.name from User join user_role on User.id = user_role.user_id
+                                                            join role on user_role.role_id = role.id
+                                                            where email = ?"
+                               users-by-username-query="select email,password,1 from User where email = ?" />		 
+        </authentication-provider>
+    </authentication-manager>
+    
+    <!--            <user-service>
+        <user name="admin@email.com" password="admin" authorities="ROLE_USER, ROLE_ADMIN" />	
+    </user-service>-->
+    <!--            <password-encoder hash="bcrypt" />-->
+
+
+</beans:beans>
